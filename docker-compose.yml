@@ -1,38 +1,70 @@
-version: "3.9"
-
 services:
   backend:
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
-    container_name: ai-email-digest-backend
-    env_file:
-      - .env
     ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
-    depends_on:
-      - redis
-      - db
-
-  redis:
-    image: redis:7-alpine
-    container_name: ai-email-digest-redis
-    ports:
-      - "6379:6379"
-
-  db:
-    image: postgres:16-alpine
-    container_name: ai-email-digest-db
+      - '127.0.0.1:8000:8000'
     environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
+      APP_ENV: ${APP_ENV:-development}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      API_KEY: ${API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DATABASE_URL: sqlite:////app/data/app.db
+      CONFIG_PATH: ${CONFIG_PATH:-config/config.example.yaml}
+      RULES_PATH: ${RULES_PATH:-config/rules.example.yaml}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REFRESH_TOKEN: ${GOOGLE_REFRESH_TOKEN:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_SECURITY: ${SMTP_SECURITY:-starttls}
+      DIGEST_FROM: ${DIGEST_FROM:-}
+      DIGEST_TO: ${DIGEST_TO:-}
+      SCHEDULER_ENABLED: ${SCHEDULER_ENABLED:-false}
+      POLL_SECONDS: ${POLL_SECONDS:-300}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - digest_data:/app/data
+      - ./config:/app/config:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'python', '-c', 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health", timeout=3)']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.41.6
+    profiles: [automation]
+    ports:
+      - '127.0.0.1:5678:5678'
+    environment:
+      GENERIC_TIMEZONE: ${DIGEST_TIMEZONE:-Europe/Berlin}
+      TZ: ${DIGEST_TIMEZONE:-Europe/Berlin}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-}
+      N8N_DIAGNOSTICS_ENABLED: 'false'
+      N8N_PERSONALIZATION_ENABLED: 'false'
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+      EXECUTIONS_DATA_SAVE_ON_ERROR: none
+      EXECUTIONS_DATA_PRUNE: 'true'
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/workflows:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  digest_data:
+  n8n_data:

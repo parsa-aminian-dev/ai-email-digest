@@ -1,0 +1,1 @@
+"""Deterministic email rule engine."""

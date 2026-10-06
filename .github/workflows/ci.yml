@@ -1,26 +1,35 @@
 name: CI
-
 on:
   push:
-    branches: [main]
   pull_request:
-
+permissions:
+  contents: read
 jobs:
-  test:
+  checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: pytest -q
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check src tests
+      - run: ruff format --check src tests
+      - run: mypy src/digest
+      - run: pytest --cov=src/digest --cov-report=term-missing --cov-report=xml
+      - run: pip-audit -r requirements.txt --no-deps --disable-pip
+      - run: docker compose config --quiet
+      - run: docker compose up --build --detach --wait
+      - run: curl --fail http://127.0.0.1:8000/demo/digest
+      - if: always()
+        run: docker compose down
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

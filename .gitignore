@@ -34,3 +34,14 @@ config/*.yaml
 
 # Docker
 docker-compose.override.yml
+
+# Private digest previews, token files, and quality-tool output
+data/
+credentials*.json
+token*.json
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

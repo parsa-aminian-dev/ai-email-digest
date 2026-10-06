@@ -1,17 +1,18 @@
-# Use cases
+# MVP use cases
 
-## Daily executive brief
+```mermaid
+flowchart LR
+    User[Mailbox owner] --> Configure[Edit validated configuration]
+    User --> Read[Read delivered digest]
+    User --> Purge[Delete local data with CLI]
+    Scheduler[n8n / built-in scheduler] --> Poll[Ingest new messages]
+    Poll --> Process[Normalize, apply rules and analyze selectively]
+    Gmail[Gmail read-only API] --> Poll
+    Process --> Store[Store minimized metadata]
+    Scheduler --> Generate[Generate due digest]
+    Store --> Generate
+    Generate --> Deliver[Send digest to fixed owner]
+    Deliver --> Read
+```
 
-A user wants a single digest each morning summarizing unread work, finance, and travel emails from the previous day.
-
-## High-priority alerting
-
-Critical alerts such as security notices, payment updates, or deadline tickets should rise in the digest or trigger a direct notification.
-
-## Personal overview
-
-A user may want a lighter personal email summary without exposing sensitive details to the LLM.
-
-## Compliance review
-
-An administrator can audit how messages are transformed, classified, and retained before the digest is produced.
+Failures in a message or external analysis fall back to independent processing and are surfaced in health counts. A Gmail outage leaves the checkpoint intact and still permits a degraded digest. History metadata can be inspected through `GET /items`; feedback learning, immediate alerts and a history UI remain post-MVP.

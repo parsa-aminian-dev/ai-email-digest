@@ -1,28 +1,14 @@
-version: 1
+# First matching rule wins. Explicit sender rules always override AI labels.
 rules:
-  - id: priority-overrides
-    type: priority
+  - id: trusted-employer
     when:
-      sender_domain: "*.company.com"
-    then:
-      priority: high
-      category: work
-
-  - id: invoice-alert
-    type: keyword
+      sender_domain: company.example
+    category: work
+    priority: HIGH
+    analyze: true
+  - id: gmail-marketing
     when:
-      body_contains:
-        - invoice
-        - payment
-    then:
-      category: finance
-      notify: true
-
-  - id: travel-summary
-    type: keyword
-    when:
-      body_contains:
-        - flight
-        - hotel
-    then:
-      category: personal
+      labels: [CATEGORY_PROMOTIONS]
+      list_unsubscribe: true
+    category: newsletters
+    priority: LOW

@@ -1,0 +1,33 @@
+{
+  "name": "AI Email Digest — poll and daily delivery",
+  "active": false,
+  "nodes": [
+    {
+      "id": "schedule",
+      "name": "Every five minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [260, 300],
+      "parameters": {"rule": {"interval": [{"field": "minutes", "minutesInterval": 5}]}}
+    },
+    {
+      "id": "tick",
+      "name": "Ingest and deliver due digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/jobs/tick",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {"timeout": 600000}
+      }
+    }
+  ],
+  "connections": {
+    "Every five minutes": {"main": [[{"node": "Ingest and deliver due digest", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1", "timezone": "Europe/Berlin", "saveDataSuccessExecution": "none", "saveDataErrorExecution": "none"},
+  "pinData": {}
+}

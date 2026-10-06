@@ -1,41 +1,38 @@
 categories:
-  - name: work
-    priority: high
-    keywords:
-      - meeting
-      - deadline
-      - client
-      - proposal
-  - name: personal
-    priority: medium
-    keywords:
-      - family
-      - travel
-      - dinner
-  - name: finance
-    priority: high
-    keywords:
-      - invoice
-      - payment
-      - refund
   - name: security
-    priority: critical
-    keywords:
-      - password reset
-      - verification code
-      - suspicious login
-
-rules:
-  digest_time: "09:00"
-  max_emails_per_digest: 20
-  include_unread_only: true
-  retention_days: 30
-  redact_pii: true
-  summarize: true
-
-filters:
-  ignore_domains:
-    - no-reply@*
-    - mailing-list@*
-  required_labels:
-    - inbox
+    priority: URGENT
+    keywords: [suspicious login, account compromised, unauthorized access]
+  - name: finance
+    priority: HIGH
+    keywords: [invoice, payment, refund, billing, zahlung, rechnung]
+  - name: work
+    priority: HIGH
+    keywords: [meeting, deadline, proposal, shift, contract, besprechung, schicht]
+  - name: travel
+    priority: MEDIUM
+    keywords: [flight, hotel, booking, delivery, flug, paket]
+  - name: personal
+    priority: MEDIUM
+    keywords: [family, dinner, birthday, geburtstag]
+  - name: newsletters
+    priority: LOW
+    keywords: [newsletter, unsubscribe, abmelden]
+  - name: general
+    priority: MEDIUM
+    keywords: []
+digest:
+  time: '09:00'
+  timezone: Europe/Berlin
+  language: en
+  summary_threshold: MEDIUM
+  max_items: 20
+retention_days: 30
+max_body_chars: 4000
+llm:
+  provider: disabled # disabled, mock (synthetic only), or openai
+  model: gpt-4o-mini
+  daily_token_budget: 20000
+  max_output_tokens: 600
+  timeout_seconds: 30
+  confidence_threshold: 0.85
+  overall_summary: true
