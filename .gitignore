@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.venv*
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Secrets
+*.pem
+*.key
+secrets/
+
+# Data
+*.sqlite3
+*.db
+*.log
+
+# Local configs
+config/*.yaml
+!config/*.example.yaml
+
+# Docker
+docker-compose.override.yml

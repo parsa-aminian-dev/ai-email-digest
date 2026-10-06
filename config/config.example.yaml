@@ -1,0 +1,41 @@
+categories:
+  - name: work
+    priority: high
+    keywords:
+      - meeting
+      - deadline
+      - client
+      - proposal
+  - name: personal
+    priority: medium
+    keywords:
+      - family
+      - travel
+      - dinner
+  - name: finance
+    priority: high
+    keywords:
+      - invoice
+      - payment
+      - refund
+  - name: security
+    priority: critical
+    keywords:
+      - password reset
+      - verification code
+      - suspicious login
+
+rules:
+  digest_time: "09:00"
+  max_emails_per_digest: 20
+  include_unread_only: true
+  retention_days: 30
+  redact_pii: true
+  summarize: true
+
+filters:
+  ignore_domains:
+    - no-reply@*
+    - mailing-list@*
+  required_labels:
+    - inbox

@@ -1,0 +1,28 @@
+version: 1
+rules:
+  - id: priority-overrides
+    type: priority
+    when:
+      sender_domain: "*.company.com"
+    then:
+      priority: high
+      category: work
+
+  - id: invoice-alert
+    type: keyword
+    when:
+      body_contains:
+        - invoice
+        - payment
+    then:
+      category: finance
+      notify: true
+
+  - id: travel-summary
+    type: keyword
+    when:
+      body_contains:
+        - flight
+        - hotel
+    then:
+      category: personal
